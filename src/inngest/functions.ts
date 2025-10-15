@@ -1,24 +1,54 @@
 import { inngest } from "./client"
-import prisma from "@/lib/db"
+import { createGoogleGenerativeAI } from "@ai-sdk/google"
+import { createOpenAI } from "@ai-sdk/openai"
+// import { createAnthropic } from "@ai-sdk/anthropic"
+import { generateText } from "ai"
 
-export const helloWorld = inngest.createFunction(
-  { id: "hello-world" },
-  { event: "test/hello.world" },
+const google = createGoogleGenerativeAI()
+const openai = createOpenAI()
+// const anthropic = createAnthropic()
+
+export const execute = inngest.createFunction(
+  { id: "execute-ai" },
+  { event: "execute/ai" },
   async ({ event, step }) => {
-    await step.sleep("step-1", "5s")
+    console.log(event)
 
-    await step.sleep("step-2", "5s")
+    const { steps: geminiSteps } = await step.ai.wrap(
+      "gemini-generate-text",
+      generateText,
+      {
+        system:
+          "You are a helpful assistant that helps people find information.",
+        prompt: "Write best business idea for the startup in 15 words.",
+        model: google("gemini-2.5-flash"),
+      }
+    )
 
-    await step.sleep("step-3", "5s")
+    const { steps: openaiSteps } = await step.ai.wrap(
+      "openai-generate-text",
+      generateText,
+      {
+        system:
+          "You are a helpful assistant that helps people find information.",
+        prompt: "Write best business idea for the startup in 15 words.",
+        model: openai("gpt-4"),
+      }
+    )
 
-    await step.run("create-workflow", () => {
-      return prisma.workflow.create({
-        data: {
-          name: "Workflow from Inngest",
-        },
-      })
-    })
+    /*
+    const { steps: anthropicSteps } = await step.ai.wrap(
+      "anthropic-generate-text",
+      generateText,
+      {
+        system:
+          "You are a helpful assistant that helps people find information.",
+        prompt: "Write best business idea for the startup in 15 words.",
+        model: anthropic("claude-3-5-sonnet-20240620"),
+      }
+    )
+    */
 
-    return { message: `Hello ${event.data.email}!` }
+    return { geminiSteps, openaiSteps }
   }
 )
