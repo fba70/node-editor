@@ -19,6 +19,10 @@ export default function Home() {
       onSuccess: () => {
         toast.success("AI assistant started")
       },
+      onError: (error) => {
+        console.error(error)
+        toast.error("Something went wrong")
+      },
     })
   )
 
@@ -27,6 +31,10 @@ export default function Home() {
       onSuccess: () => {
         queryClient.invalidateQueries(trpc.getWorkflows.queryOptions())
         toast.success("Workflow creation started")
+      },
+      onError: (error) => {
+        console.error(error)
+        toast.error("Something went wrong")
       },
     })
   )

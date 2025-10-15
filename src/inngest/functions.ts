@@ -22,6 +22,11 @@ export const execute = inngest.createFunction(
           "You are a helpful assistant that helps people find information.",
         prompt: "Write best business idea for the startup in 15 words.",
         model: google("gemini-2.5-flash"),
+        experimental_telemetry: {
+          isEnabled: true,
+          recordInputs: true,
+          recordOutputs: true,
+        },
       }
     )
 
@@ -33,6 +38,11 @@ export const execute = inngest.createFunction(
           "You are a helpful assistant that helps people find information.",
         prompt: "Write best business idea for the startup in 15 words.",
         model: openai("gpt-4"),
+        experimental_telemetry: {
+          isEnabled: true,
+          recordInputs: true,
+          recordOutputs: true,
+        },
       }
     )
 
