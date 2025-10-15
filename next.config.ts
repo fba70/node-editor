@@ -1,7 +1,8 @@
-import {withSentryConfig} from "@sentry/nextjs";
+import { withSentryConfig } from "@sentry/nextjs"
 import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
+  devIndicators: false,
   experimental: {
     authInterrupts: true,
     serverActions: {
@@ -34,6 +35,15 @@ const nextConfig: NextConfig = {
         hostname: "avatars.githubusercontent.com",
       },
     ],
+  },
+  async redirects() {
+    return [
+      {
+        source: "/",
+        destination: "/workflows",
+        permanent: false,
+      },
+    ]
   },
 }
 
@@ -68,4 +78,4 @@ export default withSentryConfig(nextConfig, {
   // https://docs.sentry.io/product/crons/
   // https://vercel.com/docs/cron-jobs
   automaticVercelMonitors: true,
-});
+})
