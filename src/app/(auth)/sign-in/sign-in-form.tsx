@@ -1,7 +1,6 @@
 "use client"
 
-import { GitHubIcon } from "@/components/icons/GitHubIcon"
-import { GoogleIcon } from "@/components/icons/GoogleIcon"
+import Image from "next/image"
 import { LoadingButton } from "@/features/auth/components/loading-button"
 import { PasswordInput } from "@/features/auth/components/password-input"
 import { Button } from "@/components/ui/button"
@@ -182,7 +181,7 @@ export function SignInForm() {
                 disabled={loading}
                 onClick={() => handleSocialSignIn("google")}
               >
-                <GoogleIcon width="0.98em" height="1em" />
+                <Image alt="Google" src="/google.svg" width={20} height={20} />
                 Sign in with Google
               </Button>
 
@@ -193,7 +192,7 @@ export function SignInForm() {
                 disabled={loading}
                 onClick={() => handleSocialSignIn("github")}
               >
-                <GitHubIcon />
+                <Image alt="Github" src="/github.svg" width={20} height={20} />
                 Sign in with Github
               </Button>
             </div>
