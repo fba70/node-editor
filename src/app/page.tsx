@@ -13,6 +13,15 @@ export default function Home() {
   const queryClient = useQueryClient()
 
   const { data } = useQuery(trpc.getWorkflows.queryOptions())
+
+  const testAI = useMutation(
+    trpc.testAI.mutationOptions({
+      onSuccess: () => {
+        toast.success("AI assistant started")
+      },
+    })
+  )
+
   const create = useMutation(
     trpc.createWorkflow.mutationOptions({
       onSuccess: () => {
@@ -25,6 +34,7 @@ export default function Home() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-6">
       <h1 className="text-2xl font-bold">Welcome to the App</h1>
+
       <Button
         onClick={() => create.mutate()}
         variant="outline"
@@ -32,7 +42,22 @@ export default function Home() {
       >
         Create Workflow
       </Button>
+
+      <div className="w-[70%] text-center">Workflow items:</div>
       <div className="w-[70%] text-center">{JSON.stringify(data, null, 2)}</div>
+
+      <Button
+        onClick={() => testAI.mutate()}
+        variant="outline"
+        disabled={testAI.isPending}
+      >
+        Test AI
+      </Button>
+
+      <div className="w-[70%] text-center">AI tests:</div>
+      <div className="w-[70%] text-center">
+        {JSON.stringify(testAI.data, null, 2)}
+      </div>
       <SignOutButton />
     </div>
   )
