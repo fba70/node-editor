@@ -2,6 +2,8 @@
 
 import { LoadingButton } from "@/features/auth/components/loading-button"
 import { PasswordInput } from "@/features/auth/components/password-input"
+import Image from "next/image"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -23,7 +25,7 @@ import { toast } from "sonner"
 import { passwordSchema } from "@/lib/validation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { authClient } from "@/lib/auth-client"
@@ -46,9 +48,12 @@ const signUpSchema = z
 type SignUpValues = z.infer<typeof signUpSchema>
 
 export function SignUpForm() {
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirect = searchParams.get("redirect") || "/"
 
   const form = useForm<SignUpValues>({
     resolver: zodResolver(signUpSchema),
@@ -78,7 +83,21 @@ export function SignUpForm() {
     }
   }
 
-  const loading = form.formState.isSubmitting
+  async function handleSocialSignIn(provider: "google" | "github") {
+    setError(null)
+    setLoading(true)
+
+    const { error } = await authClient.signIn.social({
+      provider,
+      callbackURL: redirect,
+    })
+
+    setLoading(false)
+
+    if (error) {
+      setError(error.message || "Unknown authorization error")
+    }
+  }
 
   return (
     <Card className="w-full max-w-md">
@@ -168,6 +187,30 @@ export function SignUpForm() {
             <LoadingButton type="submit" className="w-full" loading={loading}>
               Create an account
             </LoadingButton>
+
+            <div className="flex w-full flex-col items-center justify-between gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full gap-2"
+                disabled={loading}
+                onClick={() => handleSocialSignIn("google")}
+              >
+                <Image alt="Google" src="/google.svg" width={20} height={20} />
+                Sign up with Google
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full gap-2"
+                disabled={loading}
+                onClick={() => handleSocialSignIn("github")}
+              >
+                <Image alt="Github" src="/github.svg" width={20} height={20} />
+                Sign up with Github
+              </Button>
+            </div>
           </form>
         </Form>
       </CardContent>
