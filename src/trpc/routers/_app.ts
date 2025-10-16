@@ -1,27 +1,9 @@
 // import { z } from "zod"
-import { createTRPCRouter, protectedProcedure } from "@/trpc/init"
-import prisma from "@/lib/db"
-import { inngest } from "@/inngest/client"
+import { createTRPCRouter } from "@/trpc/init"
+import { workflowsRouter } from "@/features/workflows/server/route"
 
 export const appRouter = createTRPCRouter({
-  testAI: protectedProcedure.mutation(async () => {
-    await inngest.send({ name: "execute/ai" })
-
-    return { success: true, message: "AI process started" }
-  }),
-  getWorkflows: protectedProcedure.query(() => {
-    return prisma.workflow.findMany()
-  }),
-  createWorkflow: protectedProcedure.mutation(async () => {
-    await inngest.send({
-      name: "test/hello.world",
-      data: {
-        email: "a@b.com",
-      },
-    })
-
-    return { success: true, message: "Workflow creation started" }
-  }),
+  workflows: workflowsRouter,
 })
 
 export type AppRouter = typeof appRouter
