@@ -31,7 +31,7 @@ const menuItems = [
     items: [
       { title: "Workflows", url: "/workflows", icon: FolderOpenIcon },
       { title: "Credentials", url: "/credentials", icon: KeyIcon },
-      { title: "Executions", url: "/executions", icon: HistoryIcon },
+      { title: "Workflow Runs", url: "/executions", icon: HistoryIcon },
     ],
   },
 ]
