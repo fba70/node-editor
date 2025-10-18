@@ -47,8 +47,8 @@ export const AppSidebar = () => {
         <SidebarMenuItem>
           <SidebarMenuButton asChild className="gap-x-4 h-10 px-4">
             <Link href="/" prefetch>
-              <Image src="/logo.svg" alt="Workflows" width={30} height={30} />
-              <p className="font-semibold text-orange-600">NODE EDITOR</p>
+              <Image src="/logo.png" alt="Workflows" width={30} height={30} />
+              <p className="font-semibold text-orange-600">AVICA NODE EDITOR</p>
             </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>
