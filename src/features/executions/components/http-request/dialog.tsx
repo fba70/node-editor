@@ -186,7 +186,8 @@ export function HttpRequestDialog({
                     <FormDescription>
                       JSON with template variables. Use {"{{variables}}"} for
                       simple values of {"{{json variable}}"} to stringify
-                      objects.
+                      objects. If no body is needed, leave it as empty object{" "}
+                      {"{}"}.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
