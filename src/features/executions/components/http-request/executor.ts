@@ -3,6 +3,7 @@ import { NonRetriableError } from "inngest"
 import ky, { type Options as KyOptions } from "ky"
 
 type HttpRequestData = {
+  variableName?: string
   endpoint?: string
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
   body?: string
@@ -15,6 +16,11 @@ export const httpRequestExecutor: NodeExecutor<HttpRequestData> = async ({
   step,
 }) => {
   // TODO: publish loading state
+
+  if (!data.variableName) {
+    // TODO: publish error state
+    throw new NonRetriableError("No variable name provided for HTTP request")
+  }
 
   if (!data.endpoint) {
     // TODO: publish error state
@@ -45,13 +51,24 @@ export const httpRequestExecutor: NodeExecutor<HttpRequestData> = async ({
     const isJson = contentType.includes("application/json")
     const responseData = isJson ? await response.json() : await response.text()
 
-    return {
-      ...context,
+    const responsePayload = {
       httpResponse: {
         status: response.status,
         statusText: response.statusText,
         data: responseData,
       },
+    }
+
+    if (data.variableName) {
+      return {
+        ...context,
+        [data.variableName]: responsePayload,
+      }
+    }
+
+    return {
+      ...context,
+      ...responsePayload,
     }
   })
 
