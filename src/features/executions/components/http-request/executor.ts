@@ -2,6 +2,7 @@ import type { NodeExecutor } from "@/features/executions/types"
 import { NonRetriableError } from "inngest"
 import ky, { type Options as KyOptions } from "ky"
 import Handlebars from "handlebars"
+import { httpRequestChannel } from "@/inngest/channels/http-request"
 
 Handlebars.registerHelper("json", (context) => {
   const jsonString = JSON.stringify(context, null, 2)
@@ -17,64 +18,103 @@ type HttpRequestData = {
 }
 
 export const httpRequestExecutor: NodeExecutor<HttpRequestData> = async ({
-  // nodeId,
+  nodeId,
   data,
   context,
   step,
+  publish,
 }) => {
-  // TODO: publish loading state
+  await publish(
+    httpRequestChannel().status({
+      nodeId,
+      status: "loading",
+    })
+  )
 
   if (!data.variableName) {
-    // TODO: publish error state
+    await publish(
+      httpRequestChannel().status({
+        nodeId,
+        status: "error",
+      })
+    )
     throw new NonRetriableError("No variable name provided for HTTP request")
   }
 
   if (!data.endpoint) {
-    // TODO: publish error state
+    await publish(
+      httpRequestChannel().status({
+        nodeId,
+        status: "error",
+      })
+    )
     throw new NonRetriableError("No endpoint provided for HTTP request")
   }
 
   if (!data.method) {
+    await publish(
+      httpRequestChannel().status({
+        nodeId,
+        status: "error",
+      })
+    )
     throw new NonRetriableError("No method provided for HTTP request")
   }
 
-  const result = await step.run("http-request", async () => {
-    const method = data.method || "GET"
-    const endpoint = Handlebars.compile(data.endpoint!)(context) // Add context from previous nodes to the template
-    // console.log("HTTP Request to:", endpoint)
-    const options: KyOptions = {
-      method,
-    }
-
-    if (["POST", "PUT", "PATCH"].includes(method) && data.body) {
-      const resolved = Handlebars.compile(data.body || "{}")(context)
-      JSON.parse(resolved)
-      options.body = resolved
-      options.headers = {
-        "Content-Type": "application/json",
+  try {
+    const result = await step.run("http-request", async () => {
+      const method = data.method || "GET"
+      const endpoint = Handlebars.compile(data.endpoint!)(context) // Add context from previous nodes to the template
+      // console.log("HTTP Request to:", endpoint)
+      const options: KyOptions = {
+        method,
       }
-    }
 
-    const response = await ky(endpoint, options)
-    const contentType = response.headers.get("content-type") || ""
-    const isJson = contentType.includes("application/json")
-    const responseData = isJson ? await response.json() : await response.text()
+      if (["POST", "PUT", "PATCH"].includes(method) && data.body) {
+        const resolved = Handlebars.compile(data.body || "{}")(context)
+        JSON.parse(resolved)
+        options.body = resolved
+        options.headers = {
+          "Content-Type": "application/json",
+        }
+      }
 
-    const responsePayload = {
-      httpResponse: {
-        status: response.status,
-        statusText: response.statusText,
-        data: responseData,
-      },
-    }
+      const response = await ky(endpoint, options)
+      const contentType = response.headers.get("content-type") || ""
+      const isJson = contentType.includes("application/json")
+      const responseData = isJson
+        ? await response.json()
+        : await response.text()
 
-    return {
-      ...context,
-      [data.variableName!]: responsePayload,
-    }
-  })
+      const responsePayload = {
+        httpResponse: {
+          status: response.status,
+          statusText: response.statusText,
+          data: responseData,
+        },
+      }
 
-  // TODO: publish completed state
+      return {
+        ...context,
+        [data.variableName!]: responsePayload,
+      }
+    })
 
-  return result
+    await publish(
+      httpRequestChannel().status({
+        nodeId,
+        status: "success",
+      })
+    )
+
+    return result
+  } catch (error) {
+    await publish(
+      httpRequestChannel().status({
+        nodeId,
+        status: "error",
+      })
+    )
+    throw error
+  }
 }
