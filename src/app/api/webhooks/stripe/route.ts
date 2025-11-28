@@ -15,34 +15,32 @@ export async function POST(request: NextRequest) {
 
     const requestBody = await request.json()
 
-    const formData = {
-      formId: requestBody.formId,
-      formTitle: requestBody.formTitle,
-      responseId: requestBody.responseId,
-      timestamp: requestBody.timestamp,
-      respondentEmail: requestBody.respondentEmail,
-      responses: requestBody.responses,
-      raw: requestBody,
+    const stripeData = {
+      eventId: requestBody.id,
+      eventType: requestBody.type,
+      timeStamp: requestBody.created,
+      livemode: requestBody.livemode,
+      raw: requestBody.data?.object,
     }
 
     // Trigger Inggest job
     await sendWorkflowExecution({
       workflowId,
       initialData: {
-        googleForm: formData,
+        stripe: stripeData,
       },
     })
 
     return NextResponse.json({ success: true }, { status: 200 })
   } catch (error) {
-    console.error("Error in Google Form workflow trigger:", error)
+    console.error("Error in Stripe workflow trigger:", error)
     return NextResponse.json(
       {
         success: false,
-        error: "Internal Server Error in Google Form workflow trigger.",
+        error: "Internal Server Error in Stripe workflow trigger.",
       },
       { status: 500 }
     )
   }
-  return NextResponse.json({ status: "Google Form workflow trigger received." })
+  return NextResponse.json({ status: "Stripe workflow trigger received." })
 }
