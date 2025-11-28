@@ -30,6 +30,12 @@ const triggerNodes: NodeTypeOption[] = [
     description: "Start the workflow manually",
     icon: MousePointerIcon,
   },
+  {
+    type: NodeType.GOOGLE_FORM_TRIGGER,
+    label: "Google Form trigger",
+    description: "Start the workflow with a Google Form submission",
+    icon: "/googleform.svg",
+  },
 ]
 
 const executionNodes: NodeTypeOption[] = [
@@ -121,7 +127,7 @@ export const NodeSelector = ({
                 <div className="flex items-center gap-6 w-full overflow-hidden">
                   {typeof nodeType.icon === "string" ? (
                     <img
-                      src={Icon}
+                      src={nodeType.icon}
                       alt={nodeType.label}
                       className="size-5 object-contain rounded-sm"
                     />
@@ -157,7 +163,7 @@ export const NodeSelector = ({
                 <div className="flex items-center gap-6 w-full overflow-hidden">
                   {typeof nodeType.icon === "string" ? (
                     <img
-                      src={Icon}
+                      src={nodeType.icon}
                       alt={nodeType.label}
                       className="size-5 object-contain rounded-sm"
                     />

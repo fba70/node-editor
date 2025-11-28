@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "ngrok:dev": "ngrok http --url=crystallographic-thionic-brennan.ngrok-free.dev 3000"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.29",
